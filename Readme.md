@@ -1,7 +1,7 @@
 # Личный проект «Угадай мелодию» [![Build status][travis-image]][travis-url]
 
 * Студент: [Анатолий Долгов](https://up.htmlacademy.ru/ecmascript/4/user/150174).
-* Наставник: `Неизвестно`.
+* Наставник: [Никита Ткачук](https://up.htmlacademy.ru/ecmascript/4/user/450211).
 
 ---
 
