@@ -1,38 +1,42 @@
 const template = document.querySelector(`#templates`).content;
-const displays = template.querySelectorAll(`.main`);
+const welcomeDisplay = template.querySelector(`.main--welcome`);
+const artistDisplay = template.querySelector(`.main--level-artist`);
+const genreDisplay = template.querySelector(`.main--level-genre`);
+const resultDisplays = template.querySelectorAll(`.main--result`);
+
+const displays = [welcomeDisplay, artistDisplay, genreDisplay];
+
+resultDisplays.forEach((el) => displays.push(el));
+
 const app = document.querySelector(`.app`);
 
 let displayIndex = 0;
 const MIN_DISPLAY = 0;
 const maxDisplay = displays.length - 1;
 
+const Keycode = {
+  leftArr: 37,
+  rightArr: 39
+};
+
 const renderDisplay = (index) => {
-  let prevDisplay = app.querySelector(`.main`);
+  const prevDisplay = app.querySelector(`.main`);
 
   if (prevDisplay) {
     prevDisplay.remove();
   }
 
-  let currentDisplay = displays[index];
+  const currentDisplay = displays[index];
   app.insertAdjacentElement(`afterBegin`, currentDisplay);
 };
 
-const Keycodes = {
-  leftArr: 37,
-  rightArr: 39
-};
-
 const documentKeydownHandler = (evt) => {
-  if (evt.altKey && evt.keyCode === Keycodes.leftArr) {
-    if (displayIndex > MIN_DISPLAY) {
-      displayIndex--;
-    }
+  if (evt.altKey && evt.keyCode === Keycode.leftArr && displayIndex > MIN_DISPLAY) {
+    displayIndex--;
   }
 
-  if (evt.altKey && evt.keyCode === Keycodes.rightArr) {
-    if (displayIndex < maxDisplay) {
-      displayIndex++;
-    }
+  if (evt.altKey && evt.keyCode === Keycode.rightArr && displayIndex < maxDisplay) {
+    displayIndex++;
   }
 
   renderDisplay(displayIndex);
