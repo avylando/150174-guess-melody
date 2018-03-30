@@ -1,47 +1,75 @@
-const template = document.querySelector(`#templates`).content;
-const welcomeDisplay = template.querySelector(`.main--welcome`);
-const artistDisplay = template.querySelector(`.main--level-artist`);
-const genreDisplay = template.querySelector(`.main--level-genre`);
-const resultDisplays = template.querySelectorAll(`.main--result`);
+import {renderPage} from '../js/utils.js';
+import startPage from '../js/templates/welcome.js';
+import artistPage from '../js/templates/game-artist.js';
+import genrePage from '../js/templates/game-genre.js';
+import resultWinPage from '../js/templates/result-win.js';
+import resultTimePage from '../js/templates/result-time.js';
+import resultAttemptsPage from '../js/templates/result-attempts.js';
 
-const displays = [welcomeDisplay, artistDisplay, genreDisplay];
+const results = [resultWinPage, resultTimePage, resultAttemptsPage];
 
-resultDisplays.forEach((el) => displays.push(el));
+const startPageHandler = () => {
+  const startBtn = document.querySelector(`.main-play`);
 
-const app = document.querySelector(`.app`);
-
-let displayIndex = 0;
-const MIN_DISPLAY = 0;
-const maxDisplay = displays.length - 1;
-
-const Keycode = {
-  leftArr: 37,
-  rightArr: 39
+  startBtn.addEventListener(`click`, () => {
+    renderPage(artistPage);
+    artistPageHandler();
+  });
 };
 
-const renderDisplay = (index) => {
-  const prevDisplay = app.querySelector(`.main`);
+const artistPageHandler = () => {
+  const answerBtns = Array.from(document.querySelectorAll(`.main-answer-r`));
 
-  if (prevDisplay) {
-    prevDisplay.remove();
-  }
-
-  const currentDisplay = displays[index];
-  app.insertAdjacentElement(`afterBegin`, currentDisplay);
+  answerBtns.forEach((btn) => {
+    btn.addEventListener(`click`, () => {
+      renderPage(genrePage);
+      genrePageHandler();
+    });
+  });
 };
 
-const documentKeydownHandler = (evt) => {
-  if (evt.altKey && evt.keyCode === Keycode.leftArr && displayIndex > MIN_DISPLAY) {
-    displayIndex--;
-  }
+const genrePageHandler = () => {
+  const form = document.querySelector(`.genre`);
+  const checkboxes = Array.from(form.querySelectorAll(`input[type='checkbox']`));
+  const formBtn = form.querySelector(`.genre-answer-send`);
 
-  if (evt.altKey && evt.keyCode === Keycode.rightArr && displayIndex < maxDisplay) {
-    displayIndex++;
-  }
+  formBtn.setAttribute(`disabled`, `disabled`);
 
-  renderDisplay(displayIndex);
+  const checkActive = () => {
+    return checkboxes.some((checkbox) => {
+      return checkbox.checked;
+    });
+  };
+
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = false;
+    checkbox.addEventListener(`change`, () => {
+      const active = checkActive();
+
+      if (checkbox.checked) {
+        formBtn.removeAttribute(`disabled`);
+      } else if (!active) {
+        formBtn.setAttribute(`disabled`, `disabled`);
+      }
+    });
+  });
+
+  form.addEventListener(`submit`, (evt) => {
+    evt.preventDefault();
+    const randomIndex = Math.floor(Math.random() * results.length);
+    renderPage(results[randomIndex]);
+    resultPageHandler();
+  });
 };
 
-document.addEventListener(`keydown`, documentKeydownHandler);
+const resultPageHandler = () => {
+  const replayBtn = document.querySelector(`.main-replay`);
 
-renderDisplay(displayIndex);
+  replayBtn.addEventListener(`click`, () => {
+    renderPage(startPage);
+    startPageHandler();
+  });
+};
+
+renderPage(startPage);
+startPageHandler();
