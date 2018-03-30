@@ -1,9 +1,7 @@
-const createElementFromTemplate = (template, ...classNames) => {
-  const element = document.createElement(`section`);
-  const classes = classNames.join(` `);
-  element.className = `main ${classes}`;
-  element.innerHTML = template;
-  return element;
+const createElementFromTemplate = (template) => {
+  const parser = new DOMParser();
+  const content = parser.parseFromString(template, `text/html`);
+  return content.body.firstElementChild;
 };
 
 const renderPage = (page) => {

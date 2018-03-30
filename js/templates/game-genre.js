@@ -1,6 +1,7 @@
 import {createElementFromTemplate} from '../utils.js';
 
-const template = `<svg xmlns="http://www.w3.org/2000/svg" class="timer" viewBox="0 0 780 780">
+const template = `<section class="main main--level main--level-genre">
+<svg xmlns="http://www.w3.org/2000/svg" class="timer" viewBox="0 0 780 780">
   <circle
     cx="390" cy="390" r="370"
     class="timer-line"
@@ -79,8 +80,9 @@ const template = `<svg xmlns="http://www.w3.org/2000/svg" class="timer" viewBox=
 
     <button class="genre-answer-send" type="submit">Ответить</button>
   </form>
-</div>`;
+</div>
+</section>`;
 
-const page = createElementFromTemplate(template, `main--level`, `main--level-genre`);
+const page = createElementFromTemplate(template);
 
 export default page;
