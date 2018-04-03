@@ -3,9 +3,18 @@ import {assert} from 'chai';
 
 
 describe(`Points Counter`, () => {
-  const testArray = [{correct: true, time: 48}, {correct: true, time: 68}, {correct: true, time: 87},
-    {correct: true, time: 120}, {correct: true, time: 32}, {correct: true, time: 70}, {correct: true, time: 61},
-    {correct: true, time: 48}, {correct: true, time: 35}, {correct: true, time: 185}];
+  const testArray = [
+    {correct: true, time: 48},
+    {correct: true, time: 68},
+    {correct: true, time: 87},
+    {correct: true, time: 120},
+    {correct: true, time: 32},
+    {correct: true, time: 70},
+    {correct: true, time: 61},
+    {correct: true, time: 48},
+    {correct: true, time: 35},
+    {correct: true, time: 185}
+  ];
 
   it(`should return -1 when the rest notes > 0`, () => {
     assert.equal(-1, countPlayerPoints(testArray, 1));
@@ -32,7 +41,7 @@ describe(`Points Counter`, () => {
   });
 
   it(`should return 16 when the one answer is incorrect and the rest answers times < 30`, () => {
-    testArray.forEach((el) => {
+    testArray.map((el) => {
       el.time = 20;
     });
     assert.equal(16, countPlayerPoints(testArray, 0));
@@ -46,8 +55,12 @@ describe(`Points Counter`, () => {
 
 
 describe(`Player Result`, () => {
-  const results = [{points: 16, restNotes: 0, timer: 10}, {points: 10, restNotes: 0, timer: 84},
-    {points: 7, restNotes: 0, timer: 160}, {points: 6, restNotes: 0, timer: 19}];
+  const results = [
+    {points: 16, restNotes: 0, timer: 10},
+    {points: 10, restNotes: 0, timer: 84},
+    {points: 7, restNotes: 0, timer: 160},
+    {points: 6, restNotes: 0, timer: 19}
+  ];
 
   it(`should return expired attempts message when the rest notes > 0 and timer > 0`, () => {
     const playerResult = {points: 7, restNotes: 2, timer: 100};

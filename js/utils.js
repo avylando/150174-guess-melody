@@ -25,11 +25,7 @@ export const countPlayerPoints = (answers, restNotes) => {
 
   answers.forEach((answer) => {
     if (answer.correct) {
-      if (answer.time < 30) {
-        playerPoints += 2;
-      } else {
-        playerPoints++;
-      }
+      playerPoints += answer.time < 30 ? 2 : 1;
     } else {
       playerPoints -= 2;
     }
