@@ -110,13 +110,7 @@ describe(`Timer`, () => {
 
   it(`should not allow set non number value`, () => {
     assert.throws(() => setTimer(null), /Incorrect time value/);
-  });
-
-  it(`should not allow set non number value`, () => {
     assert.throws(() => setTimer({}), /Incorrect time value/);
-  });
-
-  it(`should not allow set non number value`, () => {
     assert.throws(() => setTimer(``), /Incorrect time value/);
   });
 

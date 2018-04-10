@@ -1,7 +1,7 @@
 export const createElementFromTemplate = (template) => {
-  const parser = new DOMParser();
-  const content = parser.parseFromString(template, `text/html`);
-  return content.body.firstElementChild;
+  const element = document.createElement(`template`);
+  element.innerHTML = template;
+  return element.content;
 };
 
 export const renderPage = (page) => {
@@ -12,8 +12,7 @@ export const renderPage = (page) => {
     prevPage.remove();
   }
 
-  const currentDisplay = page;
-  app.insertAdjacentElement(`afterBegin`, currentDisplay);
+  app.appendChild(page);
 };
 
 export const countPlayerPoints = (answers, restNotes) => {
@@ -34,13 +33,45 @@ export const countPlayerPoints = (answers, restNotes) => {
   return playerPoints;
 };
 
+export const setEndings = (number, variants) => {
+  if (number === 1) {
+    return variants[0];
+  }
+
+  if (number % 10 >= 5 || number % 10 === 0) {
+    return variants[2];
+  }
+
+  return variants[1];
+};
+
+export const formatTime = (seconds) => {
+  if (typeof seconds !== `number` || seconds < 1) {
+    throw new Error(`Incorrect time value`);
+  }
+
+  const minutes = Math.floor(seconds / 60);
+
+  if (minutes < 1) {
+    return `За&nbsp;${seconds}&nbsp;секунд`;
+  }
+
+  const restSeconds = seconds - (minutes * 60);
+  return `За&nbsp;${minutes}&nbsp;${setEndings(minutes, [`минуту`, `минуты`, `минут`])} и ${restSeconds}&nbsp;${setEndings(restSeconds, [`секунду`, `секунды`, `секунд`])}`;
+};
+
+
 export const getPlayerResume = (results, playerResult) => {
   if (playerResult.restNotes > 0) {
     if (playerResult.timer > 0) {
-      return `У вас закончились все попытки. Ничего, повезёт в следующий раз!`;
+      return `
+      <h2 class="title">Какая жалость!</h2>
+      <div class="main-stat">У вас закончились все попытки.<br>Ничего, повезёт в следующий раз!</div>`;
     }
 
-    return `Время вышло! Вы не успели отгадать все мелодии`;
+    return `
+    <h2 class="title">Увы и ах!</h2>
+    <div class="main-stat">Время вышло!<br>Вы не успели отгадать все мелодии</div>`;
   }
 
   results.push(playerResult);
@@ -54,39 +85,36 @@ export const getPlayerResume = (results, playerResult) => {
   const place = results.indexOf(playerResult) + 1;
   const statPercent = Math.floor(((results.length - place) / results.length) * 100);
 
-  return `Вы заняли ${place}-ое место из ${results.length} игроков. Это лучше, чем у ${statPercent}% игроков`;
+  return `
+  <h2 class="title">Вы настоящий меломан!</h2>
+  <div class="main-stat">${formatTime(playerResult.timer)}
+    <br>вы&nbsp;набрали ${playerResult.points} баллов (${playerResult.fast} быстрых)
+    <br>совершив ${playerResult.mistakes} ${setEndings(playerResult.mistakes, [`ошибку`, `ошибки`, `ошибок`])}</div>
+    <span class="main-comparison">Вы заняли ${place}-ое место из ${results.length} игроков. Это лучше, чем у ${statPercent}% игроков</span>
+  </div>`;
 };
 
-export const setTimer = (secondsNumber) => {
-  if (typeof secondsNumber !== `number` || secondsNumber < 1) {
+
+export const setTimer = (seconds) => {
+  if (typeof seconds !== `number` || seconds < 1) {
     throw new Error(`Incorrect time value`);
   }
 
-  const Timer = function () {
-    this.time = secondsNumber;
-  };
-
-  Timer.prototype.tick = function () {
-    this.time--;
-
-    if (this.time === 0) {
-      return `Time expired!`;
+  class Timer {
+    constructor() {
+      this.time = seconds;
     }
 
-    return this.time;
-  };
+    tick() {
+      this.time--;
+
+      if (this.time === 0) {
+        return `Time expired!`;
+      }
+
+      return this.time;
+    }
+  }
 
   return new Timer();
-};
-
-export const setEndings = (number, variants) => {
-  if (number === 1) {
-    return variants[0];
-  }
-
-  if (number === 0 || number % 10 >= 5) {
-    return variants[2];
-  }
-
-  return variants[1];
 };
