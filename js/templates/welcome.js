@@ -1,5 +1,6 @@
 import {createElementFromTemplate, renderPage} from '../utils.js';
-import getArtistPage from '../templates/game-artist.js';
+import startGame from '../data/data-game.js';
+import {getGamePage} from '../templates/game.js';
 
 const template = `
 <section class="main main--welcome">
@@ -13,14 +14,13 @@ const template = `
   </p>
 </section>`;
 
-
 export default () => {
+  const newGame = startGame();
   const content = createElementFromTemplate(template);
-  // const content = page.cloneNode(true);
   const startBtn = content.querySelector(`.main-play`);
 
   startBtn.addEventListener(`click`, () => {
-    renderPage(getArtistPage());
+    renderPage(getGamePage(newGame));
   });
 
   return content;

@@ -15,24 +15,6 @@ export const renderPage = (page) => {
   app.appendChild(page);
 };
 
-export const countPlayerPoints = (answers, restNotes) => {
-  let playerPoints = 0;
-
-  if (restNotes > 0) {
-    return -1;
-  }
-
-  answers.forEach((answer) => {
-    if (answer.correct) {
-      playerPoints += answer.time < 30 ? 2 : 1;
-    } else {
-      playerPoints -= 2;
-    }
-  });
-
-  return playerPoints;
-};
-
 export const setEndings = (number, variants) => {
   if (number === 1) {
     return variants[0];
@@ -45,55 +27,27 @@ export const setEndings = (number, variants) => {
   return variants[1];
 };
 
-export const formatTime = (seconds) => {
-  if (typeof seconds !== `number` || seconds < 1) {
+export const formatTime = (timer) => {
+  if (typeof timer !== `number` || timer < 1) {
     throw new Error(`Incorrect time value`);
   }
 
-  const minutes = Math.floor(seconds / 60);
+  const minutes = Math.floor(timer / 60);
 
   if (minutes < 1) {
-    return `За&nbsp;${seconds}&nbsp;секунд`;
+    return `За&nbsp;${timer}&nbsp;секунд`;
   }
 
-  const restSeconds = seconds - (minutes * 60);
-  return `За&nbsp;${minutes}&nbsp;${setEndings(minutes, [`минуту`, `минуты`, `минут`])} и ${restSeconds}&nbsp;${setEndings(restSeconds, [`секунду`, `секунды`, `секунд`])}`;
-};
+  let seconds = `${timer - (minutes * 60)}`;
 
-
-export const getPlayerResume = (results, playerResult) => {
-  if (playerResult.restNotes > 0) {
-    if (playerResult.timer > 0) {
-      return `
-      <h2 class="title">Какая жалость!</h2>
-      <div class="main-stat">У вас закончились все попытки.<br>Ничего, повезёт в следующий раз!</div>`;
-    }
-
-    return `
-    <h2 class="title">Увы и ах!</h2>
-    <div class="main-stat">Время вышло!<br>Вы не успели отгадать все мелодии</div>`;
+  if (seconds.length === 1) {
+    seconds = 0 + seconds;
   }
 
-  results.push(playerResult);
-  results.sort((res1, res2) => {
-    if (res1.points === res2.points) {
-      return 1;
-    }
-    return res2.points - res1.points;
-  });
+  const time = {minutes, seconds};
 
-  const place = results.indexOf(playerResult) + 1;
-  const statPercent = Math.floor(((results.length - place) / results.length) * 100);
-
-  return `
-  <h2 class="title">Вы настоящий меломан!</h2>
-  <div class="main-stat">${formatTime(playerResult.timer)}
-    <br>вы&nbsp;набрали ${playerResult.points} баллов (${playerResult.fast} быстрых)
-    <br>совершив ${playerResult.mistakes} ${setEndings(playerResult.mistakes, [`ошибку`, `ошибки`, `ошибок`])}</div>
-    <span class="main-comparison">Вы заняли ${place}-ое место из ${results.length} игроков. Это лучше, чем у ${statPercent}% игроков</span>
-  </div>`;
+  return time;
 };
-
 
 export const setTimer = (seconds) => {
   if (typeof seconds !== `number` || seconds < 1) {
