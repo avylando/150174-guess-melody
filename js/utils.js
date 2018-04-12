@@ -4,6 +4,7 @@ export const createElementFromTemplate = (template) => {
   return element.content;
 };
 
+
 export const renderPage = (page) => {
   const app = document.querySelector(`.app`);
   const prevPage = app.querySelector(`.main`);
@@ -14,6 +15,7 @@ export const renderPage = (page) => {
 
   app.appendChild(page);
 };
+
 
 export const setEndings = (number, variants) => {
   if (number === 1) {
@@ -26,6 +28,7 @@ export const setEndings = (number, variants) => {
 
   return variants[1];
 };
+
 
 export const formatTime = (timer) => {
   if (typeof timer !== `number` || timer < 1) {
@@ -49,8 +52,9 @@ export const formatTime = (timer) => {
   return time;
 };
 
+
 export const setTimer = (seconds) => {
-  if (typeof seconds !== `number` || seconds < 1) {
+  if (typeof seconds !== `number` || seconds < 0) {
     throw new Error(`Incorrect time value`);
   }
 
@@ -62,7 +66,7 @@ export const setTimer = (seconds) => {
     tick() {
       this.time--;
 
-      if (this.time === 0) {
+      if (this.time <= 0) {
         return `Time expired!`;
       }
 

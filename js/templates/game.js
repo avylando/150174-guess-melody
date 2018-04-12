@@ -4,10 +4,10 @@ import getResultPage from '../templates/result.js';
 
 export const getGamePage = (Game) => {
   const header = getHeader(Game);
-  let content = ``;
   const question = Game.generateQuestion();
   Game.questions--;
 
+  let content = ``;
   if (Game.type === `artist`) {
     content = `
     <div class="player-wrapper">
@@ -33,61 +33,20 @@ export const getGamePage = (Game) => {
   if (Game.type === `genre`) {
     content = `
     <form class="genre">
-      <div class="genre-answer">
-        <div class="player-wrapper">
-          <div class="player">
-            <audio></audio>
-            <button class="player-control player-control--pause"></button>
-            <div class="player-track">
-              <span class="player-status"></span>
-            </div>
+      ${question.answers.map((answer, index) =>
+    `<div class="genre-answer">
+      <div class="player-wrapper">
+        <div class="player">
+          <audio src="${answer.src}" data-name="${answer.name}"></audio>
+          <button class="player-control player-control--pause"></button>
+          <div class="player-track">
+            <span class="player-status"></span>
           </div>
         </div>
-        <input type="checkbox" name="answer" value="answer-1" id="a-1">
-        <label class="genre-answer-check" for="a-1"></label>
       </div>
-
-      <div class="genre-answer">
-        <div class="player-wrapper">
-          <div class="player">
-            <audio></audio>
-            <button class="player-control player-control--play"></button>
-            <div class="player-track">
-              <span class="player-status"></span>
-            </div>
-          </div>
-        </div>
-        <input type="checkbox" name="answer" value="answer-1" id="a-2">
-        <label class="genre-answer-check" for="a-2"></label>
-      </div>
-
-      <div class="genre-answer">
-        <div class="player-wrapper">
-          <div class="player">
-            <audio></audio>
-            <button class="player-control player-control--play"></button>
-            <div class="player-track">
-              <span class="player-status"></span>
-            </div>
-          </div>
-        </div>
-        <input type="checkbox" name="answer" value="answer-1" id="a-3">
-        <label class="genre-answer-check" for="a-3"></label>
-      </div>
-
-      <div class="genre-answer">
-        <div class="player-wrapper">
-          <div class="player">
-            <audio></audio>
-            <button class="player-control player-control--play"></button>
-            <div class="player-track">
-              <span class="player-status"></span>
-            </div>
-          </div>
-        </div>
-        <input type="checkbox" name="answer" value="answer-1" id="a-4">
-        <label class="genre-answer-check" for="a-4"></label>
-      </div>
+      <input type="checkbox" name="answer" value="${answer.genre}" id="a-${index}">
+      <label class="genre-answer-check" for="a-${index}"></label>
+    </div>`).join(``)};
 
       <button class="genre-answer-send" type="submit">Ответить</button>
     </form>`;
@@ -104,15 +63,15 @@ export const getGamePage = (Game) => {
 
   const page = createElementFromTemplate(template);
 
-  const answerHandler = (isCorrect) => {
-    const answer = Game.generateAnswer(isCorrect);
+  const answerHandler = (answer) => {
     Game.answers.push(answer);
 
-    if (!isCorrect) {
+    if (!answer.correct) {
       Game.mistakes++;
 
       if (Game.mistakes === 3) {
         renderPage(getResultPage(Game));
+        return;
       }
     }
 
@@ -130,13 +89,8 @@ export const getGamePage = (Game) => {
 
     answerBtns.forEach((btn) => {
       btn.addEventListener(`change`, () => {
-        let isCorrect = true;
-
-        if (btn.value !== question.content.name) {
-          isCorrect = false;
-        }
-
-        answerHandler(isCorrect);
+        const userAnswer = question.generateAnswer(btn.value);
+        answerHandler(userAnswer);
       });
     });
   }
@@ -169,19 +123,13 @@ export const getGamePage = (Game) => {
 
     form.addEventListener(`submit`, (evt) => {
       evt.preventDefault();
-
-      if (Game.questions > 0) {
-        Game.changeType();
-        renderPage(getGamePage(Game));
-
-      } else {
-        renderPage(getResultPage(Game));
-      }
+      const userOptions = Array.from(form.querySelectorAll(`input[type='checkbox']:checked`));
+      const userAnswer = question.generateAnswer(userOptions);
+      answerHandler(userAnswer);
     });
   }
 
   console.log(Game);
-  // console.log(Game.playerResult);
 
   return page;
 };

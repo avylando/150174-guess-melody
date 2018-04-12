@@ -3,7 +3,6 @@ import {formatTime, setEndings} from '../utils.js';
 
 const gameTypes = [`artist`, `genre`];
 const genres = [...new Set(musicData.map((it) => it.genre))];
-// const playerResult = {points: 12, restNotes: 0, timer: 100, mistakes: 0, fast: 2};
 
 const results = [
   {points: 16, restNotes: 0, timer: 10, mistakes: 0, fast: 6},
@@ -29,10 +28,6 @@ class Game {
 
   generateQuestion() {
     return new Question(this.type);
-  }
-
-  generateAnswer(value) {
-    return new Answer(value);
   }
 
   get playerResult() {
@@ -110,26 +105,37 @@ class Question {
     this.library = musicData.sort(() => {
       return Math.random() - 0.5;
     });
+    this.type = gameType;
 
-    if (gameType === `artist`) {
+    if (this.type === `artist`) {
       this.title = `Кто исполняет эту песню?`;
       this.content = this.library[2];
       this.answers = this.library.slice(0, 3);
     }
 
-    if (gameType === `genre`) {
+    if (this.type === `genre`) {
       this.genre = genres[Math.floor(Math.random() * genres.length)];
       this.title = `Выберите ${this.genre} треки`;
       this.content = this.library.slice(1, 3);
       this.answers = this.library.slice(0, 4);
     }
   }
+
+  generateAnswer(userAnswer) {
+    return new Answer(userAnswer, this.type === `artist` ? this.content : this.genre, this.type);
+  }
 }
 
 class Answer {
-  constructor(value) {
-    this.correct = value;
+  constructor(userAnswer, questionContent, questionType) {
     this.time = 30;
+    if (questionType === `artist`) {
+      this.correct = userAnswer === questionContent.name ? true : false;
+    }
+
+    if (questionType === `genre`) {
+      this.correct = userAnswer.every((it) => it.value === questionContent);
+    }
   }
 }
 
