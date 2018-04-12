@@ -5,7 +5,6 @@ import getResultPage from '../templates/result.js';
 export const getGamePage = (Game) => {
   const header = getHeader(Game);
   const question = Game.generateQuestion();
-  Game.questions--;
 
   let content = ``;
   if (Game.type === `artist`) {
@@ -89,7 +88,7 @@ export const getGamePage = (Game) => {
 
     answerBtns.forEach((btn) => {
       btn.addEventListener(`change`, () => {
-        const userAnswer = question.generateAnswer(btn.value);
+        const userAnswer = question.generateAnswer(btn.value, Game.timer);
         answerHandler(userAnswer);
       });
     });
@@ -124,7 +123,7 @@ export const getGamePage = (Game) => {
     form.addEventListener(`submit`, (evt) => {
       evt.preventDefault();
       const userOptions = Array.from(form.querySelectorAll(`input[type='checkbox']:checked`));
-      const userAnswer = question.generateAnswer(userOptions);
+      const userAnswer = question.generateAnswer(userOptions, Game.timer);
       answerHandler(userAnswer);
     });
   }

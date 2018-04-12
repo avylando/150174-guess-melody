@@ -2,20 +2,20 @@ import musicData from '../data/data-melodies.js';
 import {formatTime, setEndings} from '../utils.js';
 
 const gameTypes = [`artist`, `genre`];
-const genres = [...new Set(musicData.map((it) => it.genre))];
+// const genres = [...new Set(musicData.map((it) => it.genre))];
 
 const results = [
-  {points: 16, restNotes: 0, timer: 10, mistakes: 0, fast: 6},
-  {points: 15, restNotes: 0, timer: 84, mistakes: 0, fast: 5},
-  {points: 10, restNotes: 0, timer: 160, mistakes: 1, fast: 0},
-  {points: 10, restNotes: 0, timer: 19, mistakes: 0, fast: 0}
+  {points: 16, restNotes: 0, time: 10, mistakes: 0, fast: 6},
+  {points: 15, restNotes: 0, time: 84, mistakes: 0, fast: 5},
+  {points: 10, restNotes: 0, time: 160, mistakes: 1, fast: 0},
+  {points: 10, restNotes: 0, time: 19, mistakes: 0, fast: 0}
 ];
 
 class Game {
   constructor() {
     this.type = gameTypes[Math.floor(Math.random() * gameTypes.length)];
     this.startTime = 300;
-    this.timer = 100;
+    this.timer = 200;
     this.questions = 10;
     this.answers = [];
     this.mistakes = 0;
@@ -27,7 +27,8 @@ class Game {
   }
 
   generateQuestion() {
-    return new Question(this.type);
+    this.questions--;
+    return new Question(this);
   }
 
   get playerResult() {
@@ -52,7 +53,7 @@ class Game {
     const result = {
       points,
       restNotes: this.questions,
-      timer: this.timer,
+      time: this.timer,
       mistakes: this.mistakes,
       fast
     };
@@ -65,7 +66,7 @@ class Game {
     const stats = this.results;
 
     if (result.restNotes > 0) {
-      if (result.timer > 0) {
+      if (result.time > 0) {
         return `
         <h2 class="title">Какая жалость!</h2>
         <div class="main-stat">У вас закончились все попытки.<br>Ничего, повезёт в следующий раз!</div>`;
@@ -79,7 +80,7 @@ class Game {
     stats.push(result);
     stats.sort((res1, res2) => {
       if (res1.points === res2.points) {
-        return res2.timer - res1.timer;
+        return res2.time - res1.time;
       }
 
       return res2.points - res1.points;
@@ -87,13 +88,13 @@ class Game {
 
     const place = stats.indexOf(result) + 1;
     const statPercent = Math.floor(((stats.length - place) / stats.length) * 100);
-    const expiredTime = this.startTime - result.timer;
+    const expiredTime = this.startTime - result.time;
     const time = formatTime(expiredTime);
 
     return `
     <h2 class="title">Вы настоящий меломан!</h2>
     <div class="main-stat">За&nbsp;${time.minutes}&nbsp;${setEndings(time.minutes, [`минуту`, `минуты`, `минут`])} и ${time.seconds}&nbsp;${setEndings(time.seconds, [`секунду`, `секунды`, `секунд`])}
-      <br>вы&nbsp;набрали ${result.points} баллов (${result.fast} быстрых)
+      <br>вы&nbsp;набрали ${result.points} ${setEndings(result.points, [`балл`, `балла`, `баллов`])} (${result.fast} быстрых),
       <br>совершив ${result.mistakes} ${setEndings(result.mistakes, [`ошибку`, `ошибки`, `ошибок`])}</div>
       <span class="main-comparison">Вы заняли ${place}-ое место из ${stats.length} игроков. Это лучше, чем у ${statPercent}% игроков</span>
     </div>`;
@@ -101,11 +102,11 @@ class Game {
 }
 
 class Question {
-  constructor(gameType) {
+  constructor(game) {
+    this.type = game.type;
     this.library = musicData.sort(() => {
       return Math.random() - 0.5;
     });
-    this.type = gameType;
 
     if (this.type === `artist`) {
       this.title = `Кто исполняет эту песню?`;
@@ -114,27 +115,26 @@ class Question {
     }
 
     if (this.type === `genre`) {
-      this.genre = genres[Math.floor(Math.random() * genres.length)];
-      this.title = `Выберите ${this.genre} треки`;
-      this.content = this.library.slice(1, 3);
       this.answers = this.library.slice(0, 4);
+      this.genre = this.answers[Math.floor(Math.random() * this.answers.length)].genre;
+      this.title = `Выберите ${this.genre} треки`;
     }
   }
 
   generateAnswer(userAnswer) {
-    return new Answer(userAnswer, this.type === `artist` ? this.content : this.genre, this.type);
+    return new Answer(userAnswer, this);
   }
 }
 
 class Answer {
-  constructor(userAnswer, questionContent, questionType) {
+  constructor(userAnswer, question) {
     this.time = 30;
-    if (questionType === `artist`) {
-      this.correct = userAnswer === questionContent.name ? true : false;
+    if (question.type === `artist`) {
+      this.correct = userAnswer === question.content.name ? true : false;
     }
 
-    if (questionType === `genre`) {
-      this.correct = userAnswer.every((it) => it.value === questionContent);
+    if (question.type === `genre`) {
+      this.correct = userAnswer.every((it) => it.value === question.genre);
     }
   }
 }
