@@ -129,7 +129,5 @@ export const getGamePage = (Game) => {
     });
   }
 
-  console.log(Game);
-
   return page;
 };
