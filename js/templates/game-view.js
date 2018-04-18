@@ -1,17 +1,40 @@
-import {createElementFromTemplate, renderPage} from '../utils.js';
-import getHeader from '../templates/header.js';
-import getResultPage from '../templates/result.js';
+import AbstractView from '../templates/abstract-view.js';
 
-export const getGamePage = (Game) => {
-  const header = getHeader(Game);
-  const question = Game.generateQuestion();
+class BasicGameView extends AbstractView {
+  constructor(headerTemplate, question) {
+    super();
+    this.data = question;
+    this.header = headerTemplate;
+  }
 
-  let content = ``;
-  if (Game.type === `artist`) {
-    content = `
+  get gameTypeTemplate() {
+    if (this instanceof BasicGameView) {
+      throw new Error(`Invalid call for BasicGameTemplate`);
+    }
+  }
+
+  get template() {
+    return `
+    <section class="main main--level main--level-${this.data.type}">
+      ${this.header}
+      <div class="main-wrap">
+        <h2 class="title main-title">${this.data.title}</h2>
+        ${this.gameTypeTemplate}
+      </div>
+    </section>`;
+  }
+}
+
+export class ArtistGameView extends BasicGameView {
+  constructor(header, question) {
+    super(header, question);
+  }
+
+  get gameTypeTemplate() {
+    return `
     <div class="player-wrapper">
       <div class="player">
-        <audio src="${question.content.src}" data-name="${question.content.name}"></audio>
+        <audio src="${this.data.content.src}" data-name="${this.data.content.name}"></audio>
         <button class="player-control player-control--pause"></button>
         <div class="player-track">
           <span class="player-status"></span>
@@ -19,7 +42,7 @@ export const getGamePage = (Game) => {
       </div>
     </div>
     <form class="main-list">
-      ${question.answers.map((answer, index) =>
+      ${this.data.answers.map((answer, index) =>
     `<div class="main-answer-wrapper">
       <input class="main-answer-r" type="radio" id="answer-${index}" name="answer" value="${answer.name}"/>
       <label class="main-answer" for="answer-${index}">
@@ -29,10 +52,28 @@ export const getGamePage = (Game) => {
     </form>`;
   }
 
-  if (Game.type === `genre`) {
-    content = `
+  bind() {
+    const answerBtns = Array.from(this.element.querySelectorAll(`.main-answer-r`));
+
+    answerBtns.forEach((btn) => {
+      btn.addEventListener(`change`, (evt) => {
+        evt.preventDefault();
+        const answer = this.data.generateAnswer(btn.value, this.data.timer);
+        this.screenHandler(answer);
+      });
+    });
+  }
+}
+
+export class GenreGameView extends BasicGameView {
+  constructor(header, question) {
+    super(header, question);
+  }
+
+  get gameTypeTemplate() {
+    return `
     <form class="genre">
-      ${question.answers.map((answer, index) =>
+        ${this.data.answers.map((answer, index) =>
     `<div class="genre-answer">
       <div class="player-wrapper">
         <div class="player">
@@ -51,51 +92,8 @@ export const getGamePage = (Game) => {
     </form>`;
   }
 
-  const template = `
-  <section class="main main--level main--level-${Game.type}">
-    ${header}
-    <div class="main-wrap">
-      <h2 class="title main-title">${question.title}</h2>
-      ${content}
-    </div>
-  </section>`;
-
-  const page = createElementFromTemplate(template);
-
-  const answerHandler = (answer) => {
-    Game.answers.push(answer);
-
-    if (!answer.correct) {
-      Game.mistakes++;
-
-      if (Game.mistakes === 3) {
-        renderPage(getResultPage(Game));
-        return;
-      }
-    }
-
-    if (Game.questions > 0) {
-      Game.changeType();
-      renderPage(getGamePage(Game));
-
-    } else {
-      renderPage(getResultPage(Game));
-    }
-  };
-
-  if (Game.type === `artist`) {
-    const answerBtns = Array.from(page.querySelectorAll(`.main-answer-r`));
-
-    answerBtns.forEach((btn) => {
-      btn.addEventListener(`change`, () => {
-        const userAnswer = question.generateAnswer(btn.value, Game.timer);
-        answerHandler(userAnswer);
-      });
-    });
-  }
-
-  if (Game.type === `genre`) {
-    const form = page.querySelector(`.genre`);
+  bind() {
+    const form = this.element.querySelector(`.genre`);
     const checkboxes = Array.from(form.querySelectorAll(`input[type='checkbox']`));
     const formBtn = form.querySelector(`.genre-answer-send`);
 
@@ -123,10 +121,8 @@ export const getGamePage = (Game) => {
     form.addEventListener(`submit`, (evt) => {
       evt.preventDefault();
       const userOptions = Array.from(form.querySelectorAll(`input[type='checkbox']:checked`));
-      const userAnswer = question.generateAnswer(userOptions, Game.timer);
-      answerHandler(userAnswer);
+      const answer = this.data.generateAnswer(userOptions, this.data.timer);
+      this.screenHandler(answer);
     });
   }
-
-  return page;
-};
+}
