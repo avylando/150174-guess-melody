@@ -4,19 +4,6 @@ export const createElementFromTemplate = (template) => {
   return element.content;
 };
 
-
-export const renderPage = (page) => {
-  const app = document.querySelector(`.app`);
-  const prevPage = app.querySelector(`.main`);
-
-  if (prevPage) {
-    prevPage.remove();
-  }
-
-  app.appendChild(page);
-};
-
-
 export const setEndings = (number, variants) => {
   if (number === 1) {
     return variants[0];

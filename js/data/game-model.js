@@ -1,38 +1,103 @@
-import musicData from '../data/data-melodies.js';
+import musicData from '../data/game-data.js';
 import {formatTime, setEndings} from '../utils.js';
 
 const gameTypes = [`artist`, `genre`];
-// const genres = [...new Set(musicData.map((it) => it.genre))];
 
-const results = [
+const playersResults = [
   {points: 16, restNotes: 0, time: 10, mistakes: 0, fast: 6},
   {points: 15, restNotes: 0, time: 84, mistakes: 0, fast: 5},
   {points: 10, restNotes: 0, time: 160, mistakes: 1, fast: 0},
   {points: 10, restNotes: 0, time: 19, mistakes: 0, fast: 0}
 ];
 
-class Game {
+const INITIAL_STATE = {
+  startTime: 300,
+  timer: 200,
+  questions: 10,
+  answers: [],
+  mistakes: 0,
+  results: playersResults
+};
+
+class Question {
   constructor() {
     this.type = gameTypes[Math.floor(Math.random() * gameTypes.length)];
-    this.startTime = 300;
-    this.timer = 200;
-    this.questions = 10;
-    this.answers = [];
-    this.mistakes = 0;
-    this.results = results;
+    this.library = musicData.sort(() => {
+      return Math.random() - 0.5;
+    });
+
+    if (this.type === `artist`) {
+      this.title = `Кто исполняет эту песню?`;
+      this.content = this.library[2];
+      this.answers = this.library.slice(0, 3);
+    }
+
+    if (this.type === `genre`) {
+      this.answers = this.library.slice(0, 4);
+      this.genre = this.answers[Math.floor(Math.random() * this.answers.length)].genre;
+      this.title = `Выберите ${this.genre} треки`;
+    }
   }
 
-  changeType() {
-    this.type = gameTypes[Math.floor(Math.random() * gameTypes.length)];
+  answer(userAnswer) {
+    return new Answer(userAnswer, this);
+  }
+}
+
+class Answer {
+  constructor(userAnswer, question) {
+    this.time = 30;
+    if (question.type === `artist`) {
+      this.correct = userAnswer === question.content.name ? true : false;
+    }
+
+    if (question.type === `genre`) {
+      this.correct = userAnswer.every((it) => it.value === question.genre);
+    }
+  }
+}
+
+export default class GameModel {
+  constructor() {
+    this.restart();
   }
 
-  generateQuestion() {
-    this.questions--;
-    return new Question(this);
+  get state() {
+    return this._state;
+  }
+
+  restart() {
+    this._state = INITIAL_STATE;
+  }
+
+  isQuestionsRemained() {
+    return this.state.questions > 0;
+  }
+
+  getQuestion() {
+    this._state.questions--;
+    return new Question();
+  }
+
+  saveAnswer(answer) {
+    this._state.answers.push(answer);
+  }
+
+  tick() {
+    this.timer--;
+    return this.timer;
+  }
+
+  get mistakes() {
+    return this._state.mistakes;
+  }
+
+  onMistake() {
+    this._state.mistakes++;
   }
 
   get playerResult() {
-    const answers = this.answers;
+    const answers = this.state.answers;
     let points = 0;
     let fast = 0;
 
@@ -52,9 +117,9 @@ class Game {
 
     const result = {
       points,
-      restNotes: this.questions,
-      time: this.timer,
-      mistakes: this.mistakes,
+      restNotes: this.state.questions,
+      time: this.state.timer,
+      mistakes: this.state.mistakes,
       fast
     };
 
@@ -63,7 +128,7 @@ class Game {
 
   get playerResume() {
     const result = this.playerResult;
-    const stats = this.results;
+    const stats = this.state.results;
 
     if (result.restNotes > 0) {
       if (result.time > 0) {
@@ -88,7 +153,7 @@ class Game {
 
     const place = stats.indexOf(result) + 1;
     const statPercent = Math.floor(((stats.length - place) / stats.length) * 100);
-    const expiredTime = this.startTime - result.time;
+    const expiredTime = this.state.startTime - result.time;
     const time = formatTime(expiredTime);
 
     return `
@@ -100,45 +165,3 @@ class Game {
     </div>`;
   }
 }
-
-class Question {
-  constructor(game) {
-    this.type = game.type;
-    this.library = musicData.sort(() => {
-      return Math.random() - 0.5;
-    });
-
-    if (this.type === `artist`) {
-      this.title = `Кто исполняет эту песню?`;
-      this.content = this.library[2];
-      this.answers = this.library.slice(0, 3);
-    }
-
-    if (this.type === `genre`) {
-      this.answers = this.library.slice(0, 4);
-      this.genre = this.answers[Math.floor(Math.random() * this.answers.length)].genre;
-      this.title = `Выберите ${this.genre} треки`;
-    }
-  }
-
-  generateAnswer(userAnswer) {
-    return new Answer(userAnswer, this);
-  }
-}
-
-class Answer {
-  constructor(userAnswer, question) {
-    this.time = 30;
-    if (question.type === `artist`) {
-      this.correct = userAnswer === question.content.name ? true : false;
-    }
-
-    if (question.type === `genre`) {
-      this.correct = userAnswer.every((it) => it.value === question.genre);
-    }
-  }
-}
-
-export default () => {
-  return new Game();
-};
