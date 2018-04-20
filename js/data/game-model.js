@@ -12,7 +12,7 @@ const playersResults = [
 
 const INITIAL_STATE = {
   startTime: 300,
-  timer: 200,
+  timer: 300,
   questions: 10,
   answers: [],
   mistakes: 0,
@@ -20,7 +20,9 @@ const INITIAL_STATE = {
 };
 
 class Question {
-  constructor() {
+  constructor(gameState) {
+    this.game = gameState;
+    this.time = this.game.timer;
     this.type = gameTypes[Math.floor(Math.random() * gameTypes.length)];
     this.library = musicData.sort(() => {
       return Math.random() - 0.5;
@@ -40,13 +42,14 @@ class Question {
   }
 
   answer(userAnswer) {
+    this.answerTime = this.time - this.game.timer;
     return new Answer(userAnswer, this);
   }
 }
 
 class Answer {
   constructor(userAnswer, question) {
-    this.time = 30;
+    this.time = question.answerTime;
     if (question.type === `artist`) {
       this.correct = userAnswer === question.content.name ? true : false;
     }
@@ -67,7 +70,7 @@ export default class GameModel {
   }
 
   restart() {
-    this._state = INITIAL_STATE;
+    this._state = Object.assign({}, INITIAL_STATE);
   }
 
   isQuestionsRemained() {
@@ -75,8 +78,12 @@ export default class GameModel {
   }
 
   getQuestion() {
-    this._state.questions--;
-    return new Question();
+    if (this.state.questions > 0) {
+      this._state.questions--;
+      return new Question(this.state);
+    }
+
+    return false;
   }
 
   saveAnswer(answer) {
@@ -84,8 +91,15 @@ export default class GameModel {
   }
 
   tick() {
-    this.timer--;
-    return this.timer;
+    if (this._state.timer === 0) {
+      return false;
+    }
+
+    return this._state.timer--;
+  }
+
+  get timer() {
+    return this._state.timer;
   }
 
   get mistakes() {

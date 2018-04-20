@@ -1,16 +1,14 @@
 
 import GameView from '../view/game-view.js';
 import HeaderView from '../view/header-view.js';
-// import {renderPage} from '../utils.js';
-// import getResultPage from '../templates/result-screen.js';
+import Application from '../app.js';
 
 export default class GameScreen {
   constructor(model) {
     this.model = model;
     this.question = this.model.getQuestion();
     this.header = new HeaderView(this.model.state);
-    this.content = new GameView(this.question, this.model);
-    this.content.screenHandler = this.onAnswer;
+    this.content = new GameView(this.question);
 
     this.root = document.createElement(`section`);
     this.root.className = `main main--level main--level-${this.question.type}`;
@@ -24,10 +22,15 @@ export default class GameScreen {
     return this.root;
   }
 
-  init() {
+  startGame() {
     this._interval = setInterval(() => {
-      this.model.tick();
-      this.updateHeader();
+      this.timer = this.model.tick();
+
+      if (!this.timer) {
+        this.endGame();
+      } else {
+        this.updateHeader();
+      }
     }, 1000);
   }
 
@@ -35,32 +38,13 @@ export default class GameScreen {
     clearInterval(this._interval);
   }
 
+  endGame() {
+    clearInterval(this._interval);
+    Application.showResult(this.model);
+  }
+
   restart() {
     this.model.restart();
-  }
-
-  changeContent(view, type) {
-    this.root.replaceChild(view.element, this.content.element);
-    this.content = view;
-    this.root.className = `main main--level main--level-${type}`;
-  }
-
-  onAnswer(answer) {
-    this.model.saveAnswer(answer);
-
-    if (!answer.correct) {
-      this.model.onMistake();
-
-      if (this.model.mistakes === 3) {
-        return false;
-      }
-    }
-
-    if (this.model.isQuestionsRemained()) {
-      return this.changeScreen();
-    }
-
-    return false;
   }
 
   updateHeader() {
@@ -69,11 +53,38 @@ export default class GameScreen {
     this.header = header;
   }
 
-  changeScreen() {
+  changeContent() {
     this.updateHeader();
     this.question = this.model.getQuestion();
     const view = new GameView(this.question, this.model);
+    this.root.replaceChild(view.element, this.content.element);
+    this.content = view;
+    this.bind();
+    this.root.className = `main main--level main--level-${this.question.type}`;
+  }
 
-    this.changeContent(view, this.question.type);
+  bind() {
+    this.content.onAnswer = (answer) => {
+      this.model.saveAnswer(answer);
+
+      if (!answer.correct) {
+        this.model.onMistake();
+
+        if (this.model.mistakes === 3) {
+          this.endGame();
+        }
+      }
+
+      if (this.model.isQuestionsRemained()) {
+        this.changeContent();
+      } else {
+        this.endGame();
+      }
+    };
+  }
+
+  init() {
+    this.startGame();
+    this.bind();
   }
 }

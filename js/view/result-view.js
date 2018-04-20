@@ -21,7 +21,7 @@ export default class ResultView extends AbstractView {
 
     replayBtn.addEventListener(`click`, (evt) => {
       evt.preventDefault();
-      this.screenHandler();
+      Application.showWelcome();
     });
   }
 }

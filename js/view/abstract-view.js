@@ -12,9 +12,9 @@ export default class AbstractView {
   }
 
   render() {
-    const element = document.createElement(`template`);
-    element.innerHTML = this.template;
-    return element.content;
+    const parser = new DOMParser();
+    const result = parser.parseFromString(this.template, `text/html`);
+    return result.body.firstElementChild;
   }
 
   bind() {}
@@ -23,7 +23,7 @@ export default class AbstractView {
 
   get element() {
     if (!this._el) {
-      this._el = this.render(this.template);
+      this._el = this.render();
       this.bind();
     }
     return this._el;

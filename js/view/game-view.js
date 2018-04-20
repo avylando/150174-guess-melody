@@ -1,11 +1,9 @@
 import AbstractView from '../view/abstract-view.js';
-import Application from '../app.js';
 
 export default class GameView extends AbstractView {
-  constructor(question, model) {
+  constructor(question) {
     super();
     this.data = question;
-    this.model = model;
   }
 
   get template() {
@@ -71,12 +69,8 @@ export default class GameView extends AbstractView {
         answerBtns.forEach((btn) => {
           btn.addEventListener(`change`, (evt) => {
             evt.preventDefault();
-            const answer = this.data.answer(btn.value, this.data.timer);
-            const result = this.screenHandler(answer);
-
-            if (!result) {
-              Application.showResult(this.model);
-            }
+            const answer = this.data.answer(btn.value, this.data);
+            this.onAnswer(answer);
           });
         });
 
@@ -112,11 +106,7 @@ export default class GameView extends AbstractView {
           evt.preventDefault();
           const userOptions = Array.from(form.querySelectorAll(`input[type='checkbox']:checked`));
           const answer = this.data.answer(userOptions, this.data.timer);
-          const result = this.screenHandler(answer);
-
-          if (!result) {
-            Application.showResult(this.model);
-          }
+          this.onAnswer(answer);
         });
 
         break;
@@ -124,5 +114,9 @@ export default class GameView extends AbstractView {
       default:
         throw new Error(`Unknown data type: ${this.data.type}`);
     }
+  }
+
+  onAnswer(answer) {
+
   }
 }

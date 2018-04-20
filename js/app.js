@@ -1,9 +1,10 @@
 import GameModel from './data/game-model.js';
-import WelcomeScreen from './view/welcome-screen.js';
+import WelcomeView from './view/welcome-view.js';
 import GameScreen from './view/game-screen.js';
-import ResultScreen from './view/result-screen.js';
+import ResultView from './view/result-view.js';
 
 const app = document.querySelector(`.app`);
+const footer = app.querySelector(`.copyright`);
 
 const changeView = (page) => {
   const prevPage = app.querySelector(`.main`);
@@ -12,25 +13,26 @@ const changeView = (page) => {
     prevPage.remove();
   }
 
-  app.appendChild(page);
+  app.insertBefore(page, footer);
 };
 
 export default class Application {
 
   static showWelcome() {
-    const welcome = new WelcomeScreen();
+    const welcome = new WelcomeView();
     changeView(welcome.element);
   }
 
   static showGame() {
-    const model = new GameModel();
+    let model = new GameModel();
+    console.log(model);
     const gameScreen = new GameScreen(model);
     changeView(gameScreen.element);
     gameScreen.init();
   }
 
   static showResult(model) {
-    const result = new ResultScreen(model);
+    const result = new ResultView(model);
     changeView(result.element);
   }
 }
