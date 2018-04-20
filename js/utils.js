@@ -4,19 +4,6 @@ export const createElementFromTemplate = (template) => {
   return element.content;
 };
 
-
-export const renderPage = (page) => {
-  const app = document.querySelector(`.app`);
-  const prevPage = app.querySelector(`.main`);
-
-  if (prevPage) {
-    prevPage.remove();
-  }
-
-  app.appendChild(page);
-};
-
-
 export const setEndings = (number, variants) => {
   if (number === 1) {
     return variants[0];
@@ -31,16 +18,11 @@ export const setEndings = (number, variants) => {
 
 
 export const formatTime = (timer) => {
-  if (typeof timer !== `number` || timer < 1) {
+  if (typeof timer !== `number`) {
     throw new Error(`Incorrect time value`);
   }
 
   const minutes = Math.floor(timer / 60);
-
-  if (minutes < 1) {
-    return `За&nbsp;${timer}&nbsp;секунд`;
-  }
-
   let seconds = `${timer - (minutes * 60)}`;
 
   if (seconds.length === 1) {
@@ -50,29 +32,4 @@ export const formatTime = (timer) => {
   const time = {minutes, seconds};
 
   return time;
-};
-
-
-export const setTimer = (seconds) => {
-  if (typeof seconds !== `number` || seconds < 0) {
-    throw new Error(`Incorrect time value`);
-  }
-
-  class Timer {
-    constructor() {
-      this.time = seconds;
-    }
-
-    tick() {
-      this.time--;
-
-      if (this.time <= 0) {
-        return `Time expired!`;
-      }
-
-      return this.time;
-    }
-  }
-
-  return new Timer();
 };

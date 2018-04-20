@@ -1,4 +1,5 @@
-import AbstractView from '../templates/abstract-view.js';
+import AbstractView from '../view/abstract-view.js';
+import Application from '../app.js';
 
 export default class WelcomeView extends AbstractView {
   constructor() {
@@ -24,7 +25,7 @@ export default class WelcomeView extends AbstractView {
 
     startBtn.addEventListener(`click`, (evt) => {
       evt.preventDefault();
-      this.screenHandler();
+      Application.showGame();
     });
   }
 }

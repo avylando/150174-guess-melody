@@ -1,4 +1,5 @@
-import AbstractView from '../templates/abstract-view.js';
+import AbstractView from '../view/abstract-view.js';
+import Application from '../app.js';
 
 export default class ResultView extends AbstractView {
   constructor(game) {
@@ -20,7 +21,7 @@ export default class ResultView extends AbstractView {
 
     replayBtn.addEventListener(`click`, (evt) => {
       evt.preventDefault();
-      this.screenHandler();
+      Application.showWelcome();
     });
   }
 }
