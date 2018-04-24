@@ -1,9 +1,3 @@
-export const createElementFromTemplate = (template) => {
-  const element = document.createElement(`template`);
-  element.innerHTML = template;
-  return element.content;
-};
-
 export const setEndings = (number, variants) => {
   if (number === 1) {
     return variants[0];

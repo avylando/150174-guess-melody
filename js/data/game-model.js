@@ -1,7 +1,5 @@
-import musicData from '../data/game-data.js';
 import {formatTime, setEndings} from '../utils.js';
-
-const gameTypes = [`artist`, `genre`];
+import {ArtistQuestion, GenreQuestion} from '../data/question.js';
 
 const playersResults = [
   {points: 16, restNotes: 0, time: 10, mistakes: 0, fast: 6},
@@ -13,56 +11,16 @@ const playersResults = [
 const INITIAL_STATE = {
   startTime: 300,
   timer: 300,
-  questions: 10,
+  questionsRemained: 10,
   answers: [],
   mistakes: 0,
   results: playersResults
 };
 
-class Question {
-  constructor(gameState) {
-    this.game = gameState;
-    this.time = this.game.timer;
-    this.type = gameTypes[Math.floor(Math.random() * gameTypes.length)];
-    this.library = musicData.sort(() => {
-      return Math.random() - 0.5;
-    });
-
-    if (this.type === `artist`) {
-      this.title = `Кто исполняет эту песню?`;
-      this.content = this.library[2];
-      this.answers = this.library.slice(0, 3);
-    }
-
-    if (this.type === `genre`) {
-      this.answers = this.library.slice(0, 4);
-      this.genre = this.answers[Math.floor(Math.random() * this.answers.length)].genre;
-      this.title = `Выберите ${this.genre} треки`;
-    }
-  }
-
-  answer(userAnswer) {
-    this.answerTime = this.time - this.game.timer;
-    return new Answer(userAnswer, this);
-  }
-}
-
-class Answer {
-  constructor(userAnswer, question) {
-    this.time = question.answerTime;
-    if (question.type === `artist`) {
-      this.correct = userAnswer === question.content.name ? true : false;
-    }
-
-    if (question.type === `genre`) {
-      this.correct = userAnswer.every((it) => it.value === question.genre);
-    }
-  }
-}
-
 export default class GameModel {
-  constructor() {
+  constructor(data) {
     this.restart();
+    this.questions = [...data];
   }
 
   get state() {
@@ -74,13 +32,18 @@ export default class GameModel {
   }
 
   isQuestionsRemained() {
-    return this.state.questions > 0;
+    return this.state.questionsRemained > 0 && this.questions.length > 0;
   }
 
   getQuestion() {
-    if (this.state.questions > 0) {
-      this._state.questions--;
-      return new Question(this.state);
+    if (this.isQuestionsRemained()) {
+      const question = this.questions.pop();
+      this._state.questionsRemained--;
+      switch (question.type) {
+        case `artist`: return new ArtistQuestion(question, this.state);
+        case `genre`: return new GenreQuestion(question, this.state);
+        default: throw new Error(`Unknown question type: ${question.type}`);
+      }
     }
 
     return false;
@@ -131,7 +94,7 @@ export default class GameModel {
 
     const result = {
       points,
-      restNotes: this.state.questions,
+      restNotes: this.state.questionsRemained,
       time: this.state.timer,
       mistakes: this.state.mistakes,
       fast
