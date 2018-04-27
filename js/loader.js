@@ -8,8 +8,6 @@ const onError = (error) => {
 const onLoad = (response) => {
   if (response.ok) {
     return response.json();
-  } else if (response.status === 404) {
-    return [];
   }
 
   throw new Error(`Неизвестный статус: ${response.status} ${response.statusText}`);

@@ -31,12 +31,9 @@ export class ArtistQuestion extends Question {
   }
 
   getAnswer(userAnswer) {
-    let correct;
-    this.answers.forEach((answer) => {
-      if (userAnswer === answer.title) {
-        correct = answer.isCorrect;
-      }
-    });
+    const correct = this.answers.reduce((result, answer) => {
+      return userAnswer === answer.title ? answer.isCorrect : result;
+    }, false);
 
     const time = this.time - this.game.timer;
     return {correct, time};
