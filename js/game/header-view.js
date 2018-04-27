@@ -1,9 +1,10 @@
-import AbstractView from '../view/abstract-view.js';
+import AbstractView from '../abstract-view.js';
 import {formatTime} from '../utils.js';
 
 export default class HeaderView extends AbstractView {
   constructor(game) {
     super();
+    this.timer = game.timer;
     this.time = formatTime(game.timer);
     this.mistakes = game.mistakes;
     this.circleRadius = 370;
@@ -39,5 +40,15 @@ export default class HeaderView extends AbstractView {
     const stroke = Math.round(2 * Math.PI * this.circleRadius);
     const offset = stroke - (stroke * proportion);
     return {stroke, offset};
+  }
+
+  bind() {
+    const timerValue = this.element.querySelector(`.timer-value`);
+    const circle = this.element.querySelector(`.timer-line`);
+
+    if (this.timer < 30) {
+      timerValue.classList.add(`timer-expired`);
+      circle.classList.add(`timer-expired`);
+    }
   }
 }

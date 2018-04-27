@@ -1,4 +1,4 @@
-import AbstractView from '../view/abstract-view.js';
+import AbstractView from '../abstract-view.js';
 import Application from '../app.js';
 
 export default class ResultView extends AbstractView {
@@ -21,7 +21,7 @@ export default class ResultView extends AbstractView {
 
     replayBtn.addEventListener(`click`, (evt) => {
       evt.preventDefault();
-      Application.showWelcome();
+      Application.start();
     });
   }
 }

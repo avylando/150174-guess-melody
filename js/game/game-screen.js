@@ -1,6 +1,6 @@
 
-import GameView from '../view/game-view.js';
-import HeaderView from '../view/header-view.js';
+import GameView from './game-view.js';
+import HeaderView from './header-view.js';
 import Application from '../app.js';
 
 export default class GameScreen {
@@ -69,16 +69,12 @@ export default class GameScreen {
 
       if (!answer.correct) {
         this.model.onMistake();
-
-        if (this.model.mistakes === 3) {
-          this.endGame();
-        }
       }
 
-      if (this.model.isQuestionsRemained()) {
-        this.changeContent();
-      } else {
+      if (this.model.mistakes === 3 || !this.model.isQuestionsRemained()) {
         this.endGame();
+      } else {
+        this.changeContent();
       }
     };
   }
