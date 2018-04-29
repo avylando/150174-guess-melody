@@ -1,20 +1,19 @@
 import {formatTime, setEndings} from '../utils.js';
 import {ArtistQuestion, GenreQuestion} from '../data/question.js';
 
-const playersResults = [
-  {points: 16, restNotes: 0, time: 10, mistakes: 0, fast: 6},
-  {points: 15, restNotes: 0, time: 84, mistakes: 0, fast: 5},
-  {points: 10, restNotes: 0, time: 160, mistakes: 1, fast: 0},
-  {points: 10, restNotes: 0, time: 19, mistakes: 0, fast: 0}
-];
+// const playersResults = [
+//   {points: 16, restNotes: 0, time: 10, mistakes: 0, fast: 6},
+//   {points: 15, restNotes: 0, time: 84, mistakes: 0, fast: 5},
+//   {points: 10, restNotes: 0, time: 160, mistakes: 1, fast: 0},
+//   {points: 10, restNotes: 0, time: 19, mistakes: 0, fast: 0}
+// ];
 
 const INITIAL_STATE = {
   startTime: 300,
   timer: 300,
   questionsRemained: 10,
   answers: [],
-  mistakes: 0,
-  results: playersResults
+  mistakes: 0
 };
 
 export default class GameModel {
@@ -53,16 +52,16 @@ export default class GameModel {
     this._state.answers.push(answer);
   }
 
+  get timer() {
+    return this._state.timer;
+  }
+
   tick() {
-    if (this._state.timer === 0) {
+    if (this.timer === 0) {
       return false;
     }
 
     return this._state.timer--;
-  }
-
-  get timer() {
-    return this._state.timer;
   }
 
   get mistakes() {
@@ -71,6 +70,14 @@ export default class GameModel {
 
   onMistake() {
     this._state.mistakes++;
+  }
+
+  isCompleted() {
+    return !this.isQuestionsRemained() && this.mistakes < 3 && this.timer > 0;
+  }
+
+  setStats(results) {
+    this.stats = results;
   }
 
   get playerResult() {
@@ -105,7 +112,8 @@ export default class GameModel {
 
   get playerResume() {
     const result = this.playerResult;
-    const stats = this.state.results;
+    console.log(this.stats);
+    const stats = this.stats;
 
     if (result.restNotes > 0) {
       if (result.time > 0) {

@@ -37,5 +37,8 @@
     "plugins": [
       "transform-es2015-modules-commonjs"
     ]
+  },
+  "dependencies": {
+    "node-sass": "^4.9.0"
   }
 }
