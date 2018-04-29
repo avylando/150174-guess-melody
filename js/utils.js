@@ -32,4 +32,4 @@ export const createNotice = () => {
   const element = document.createElement(`div`);
   element.style = `width: 200px; height: 50px; color: red; position: absolute; top:50px; left: 50px;`;
   return element;
-}
+};

@@ -49,17 +49,17 @@ export default class Application {
       const splash = new SplashScreen();
       splash.start();
       Loader.loadResults()
-        .then((results) => model.setStats(results))
-        .catch(Application.showError)
-        .then(() => splash.stop());
-      
+          .then((results) => model.setStats(results))
+          .catch(Application.showError)
+          .then(() => splash.stop());
+
       Loader.saveResult(model.playerResult)
-        .then(() => {
-          const result = new ResultView(model);
-          changeView(result.element);
-        })
-        .catch(Application.showError);
-        
+          .then(() => {
+            const result = new ResultView(model);
+            changeView(result.element);
+          })
+          .catch(Application.showError);
+
     } else {
       const result = new ResultView(model);
       changeView(result.element);

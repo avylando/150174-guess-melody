@@ -25,12 +25,14 @@ const onResultsLoad = (response) => {
   }
 
   return onError(`Произошла ошибка: ${response.status} ${response.statusText}`);
-}
+};
 
 const onResultSave = (response) => {
   if (!response.ok) {
     return onError(`Произошла ошибка: ${response.status} ${response.statusText}`);
   }
+
+  return true;
 };
 
 export default class Loader {
@@ -58,7 +60,7 @@ export default class Loader {
       headers: {
         'Content-Type': `application/json`
       }
-    }
+    };
 
     const whenResultSaved = window.fetch(URL, options);
     return whenResultSaved.then(onResultSave).catch(onError);

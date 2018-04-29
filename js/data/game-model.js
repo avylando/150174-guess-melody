@@ -112,7 +112,6 @@ export default class GameModel {
 
   get playerResume() {
     const result = this.playerResult;
-    console.log(this.stats);
     const stats = this.stats;
 
     if (result.restNotes > 0) {
