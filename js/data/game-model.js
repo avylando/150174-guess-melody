@@ -1,64 +1,23 @@
 import {formatTime, setEndings} from '../utils.js';
 import {ArtistQuestion, GenreQuestion} from '../data/question.js';
 
-const playersResults = [
-  {points: 16, restNotes: 0, time: 10, mistakes: 0, fast: 6},
-  {points: 15, restNotes: 0, time: 84, mistakes: 0, fast: 5},
-  {points: 10, restNotes: 0, time: 160, mistakes: 1, fast: 0},
-  {points: 10, restNotes: 0, time: 19, mistakes: 0, fast: 0}
-];
-
 const INITIAL_STATE = {
   startTime: 300,
   timer: 300,
   questionsRemained: 10,
   answers: [],
-  mistakes: 0,
-  results: playersResults
+  mistakes: 0
 };
 
 export default class GameModel {
   constructor(data) {
     this.restart();
     this.questions = [...data];
+    this.stats = [];
   }
 
   get state() {
     return this._state;
-  }
-
-  restart() {
-    this._state = Object.assign({}, INITIAL_STATE);
-  }
-
-  isQuestionsRemained() {
-    return this.state.questionsRemained > 0 && this.questions.length > 0;
-  }
-
-  getQuestion() {
-    if (this.isQuestionsRemained()) {
-      const question = this.questions.pop();
-      this._state.questionsRemained--;
-      switch (question.type) {
-        case `artist`: return new ArtistQuestion(question, this.state);
-        case `genre`: return new GenreQuestion(question, this.state);
-        default: throw new Error(`Unknown question type: ${question.type}`);
-      }
-    }
-
-    return false;
-  }
-
-  saveAnswer(answer) {
-    this._state.answers.push(answer);
-  }
-
-  tick() {
-    if (this._state.timer === 0) {
-      return false;
-    }
-
-    return this._state.timer--;
   }
 
   get timer() {
@@ -67,10 +26,6 @@ export default class GameModel {
 
   get mistakes() {
     return this._state.mistakes;
-  }
-
-  onMistake() {
-    this._state.mistakes++;
   }
 
   get playerResult() {
@@ -105,7 +60,7 @@ export default class GameModel {
 
   get playerResume() {
     const result = this.playerResult;
-    const stats = this.state.results;
+    const stats = this.stats;
 
     if (result.restNotes > 0) {
       if (result.time > 0) {
@@ -140,5 +95,51 @@ export default class GameModel {
       <br>совершив ${result.mistakes} ${setEndings(result.mistakes, [`ошибку`, `ошибки`, `ошибок`])}</div>
       <span class="main-comparison">Вы заняли ${place}-ое место из ${stats.length} игроков. Это лучше, чем у ${statPercent}% игроков</span>
     </div>`;
+  }
+
+  restart() {
+    this._state = Object.assign({}, INITIAL_STATE);
+  }
+
+  isQuestionsRemained() {
+    return this.state.questionsRemained > 0 && this.questions.length > 0;
+  }
+
+  getQuestion() {
+    if (this.isQuestionsRemained()) {
+      const question = this.questions.pop();
+      this._state.questionsRemained--;
+      switch (question.type) {
+        case `artist`: return new ArtistQuestion(question, this.state);
+        case `genre`: return new GenreQuestion(question, this.state);
+        default: throw new Error(`Unknown question type: ${question.type}`);
+      }
+    }
+
+    return false;
+  }
+
+  saveAnswer(answer) {
+    this._state.answers.push(answer);
+  }
+
+  tick() {
+    if (this.timer === 0) {
+      return false;
+    }
+
+    return this._state.timer--;
+  }
+
+  onMistake() {
+    this._state.mistakes++;
+  }
+
+  isCompleted() {
+    return !this.isQuestionsRemained() && this.mistakes < 3 && this.timer > 0;
+  }
+
+  setStats(results) {
+    this.stats = results;
   }
 }

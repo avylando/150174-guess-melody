@@ -1,16 +1,38 @@
+import {createNotice} from './utils.js';
+
+const SERVER_URL = `https://es.dump.academy/guess-melody`;
+const APP_ID = 21041991;
+
 const onError = (error) => {
-  const element = document.createElement(`div`);
-  element.style = `width: 200px; height: 50px; color: red; position: absolute; top:50px; left: 50px;`;
-  element.textContent = error.message;
-  document.body.insertAdjacentElement(`afterBegin`, element);
+  const notice = createNotice();
+  notice.textContent = error.message;
+  document.body.insertAdjacentElement(`afterBegin`, notice);
 };
 
-const onLoad = (response) => {
+const onDataLoad = (response) => {
   if (response.ok) {
     return response.json();
   }
 
-  throw new Error(`Неизвестный статус: ${response.status} ${response.statusText}`);
+  return onError(`Произошла ошибка: ${response.status} ${response.statusText}`);
+};
+
+const onResultsLoad = (response) => {
+  if (response.ok) {
+    return response.json();
+  } else if (response.status === 404) {
+    return [];
+  }
+
+  return onError(`Произошла ошибка: ${response.status} ${response.statusText}`);
+};
+
+const onResultSave = (response) => {
+  if (!response.ok) {
+    return onError(`Произошла ошибка: ${response.status} ${response.statusText}`);
+  }
+
+  return true;
 };
 
 export default class Loader {
@@ -19,8 +41,28 @@ export default class Loader {
   }
 
   static loadData() {
-    const URL = `https://es.dump.academy/guess-melody/questions`;
+    const URL = `${SERVER_URL}/questions`;
     const whenDataLoaded = window.fetch(URL);
-    return whenDataLoaded.then(onLoad).catch(onError);
+    return whenDataLoaded.then(onDataLoad).catch(onError);
+  }
+
+  static loadResults() {
+    const URL = `${SERVER_URL}/stats/${APP_ID}`;
+    const whenDataLoaded = window.fetch(URL);
+    return whenDataLoaded.then(onResultsLoad).catch(onError);
+  }
+
+  static saveResult(playerResult) {
+    const URL = `${SERVER_URL}/stats/${APP_ID}`;
+    const options = {
+      method: `POST`,
+      body: JSON.stringify(playerResult),
+      headers: {
+        'Content-Type': `application/json`
+      }
+    };
+
+    const whenResultSaved = window.fetch(URL, options);
+    return whenResultSaved.then(onResultSave).catch(onError);
   }
 }

@@ -1,4 +1,5 @@
 import Loader from './loader.js';
+import {createNotice} from './utils.js';
 import SplashScreen from './splash/splash-screen.js';
 import GameModel from './data/game-model.js';
 import WelcomeView from './game/welcome-view.js';
@@ -44,13 +45,29 @@ export default class Application {
   }
 
   static showResult(model) {
-    const result = new ResultView(model);
-    changeView(result.element);
+    if (model.isCompleted()) {
+      const splash = new SplashScreen();
+      splash.start();
+      Loader.loadResults()
+          .then((results) => model.setStats(results))
+          .catch(Application.showError)
+          .then(() => splash.stop());
+
+      Loader.saveResult(model.playerResult)
+          .then(() => {
+            const result = new ResultView(model);
+            changeView(result.element);
+          })
+          .catch(Application.showError);
+
+    } else {
+      const result = new ResultView(model);
+      changeView(result.element);
+    }
   }
 
   static showError(error) {
-    const element = document.createElement(`div`);
-    element.style = `width: 200px; height: 50px; color: red; position: absolute; top:50px; left: 50px;`;
+    const element = createNotice();
     element.textContent = error.message;
     document.body.insertAdjacentElement(`afterBegin`, element);
   }

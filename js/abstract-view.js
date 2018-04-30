@@ -19,8 +19,6 @@ export default class AbstractView {
 
   bind() {}
 
-  screenHandler() {}
-
   get element() {
     if (!this._el) {
       this._el = this.render();
