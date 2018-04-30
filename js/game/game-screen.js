@@ -34,10 +34,6 @@ export default class GameScreen {
     }, 1000);
   }
 
-  stopGame() {
-    clearInterval(this._interval);
-  }
-
   endGame() {
     clearInterval(this._interval);
     Application.showResult(this.model);

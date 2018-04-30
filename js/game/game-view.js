@@ -91,7 +91,7 @@ export default class GameView extends AbstractView {
         break;
 
       case `genre`:
-        const controls = this.element.querySelectorAll(`.player-control`);
+        const controls = Array.from(this.element.querySelectorAll(`.player-control`));
 
         controls.forEach((ctrl) => {
           ctrl.addEventListener(`click`, (evt) => {
