@@ -18,8 +18,8 @@ export default class HeaderView extends AbstractView {
         <circle
           cx="390" cy="390" r="${this.circleRadius}"
           class="timer-line"
-          stroke-dasharray="${this.calculateCircle(this._propTime).stroke}"
-          stroke-dashoffset="${this.calculateCircle(this._propTime).offset}"
+          stroke-dasharray="${this._calculateCircle(this._propTime).stroke}"
+          stroke-dashoffset="${this._calculateCircle(this._propTime).offset}"
           style="filter: url(.#blur); transform: rotate(-90deg) scaleY(-1); transform-origin: center">
         </circle>
         <div class="timer-value" xmlns="http://www.w3.org/1999/xhtml">
@@ -36,7 +36,7 @@ export default class HeaderView extends AbstractView {
   </header>`;
   }
 
-  calculateCircle(proportion) {
+  _calculateCircle(proportion) {
     const stroke = Math.round(2 * Math.PI * this.circleRadius);
     const offset = stroke - (stroke * proportion);
     return {stroke, offset};
