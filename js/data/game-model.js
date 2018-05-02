@@ -1,5 +1,6 @@
 import {formatTime, setEndings} from '../utils.js';
-import {ArtistQuestion, GenreQuestion} from '../data/question.js';
+import ArtistQuestion from '../data/question-artist.js';
+import GenreQuestion from '../data/question-genre.js';
 
 const INITIAL_STATE = {
   startTime: 300,
