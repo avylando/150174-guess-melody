@@ -1,6 +1,8 @@
 import AbstractView from '../abstract-view.js';
 import {formatTime} from '../utils.js';
 
+const TIME_WARNING = 30;
+
 export default class HeaderView extends AbstractView {
   constructor(game) {
     super();
@@ -45,9 +47,8 @@ export default class HeaderView extends AbstractView {
   bind() {
     const timerValue = this.element.querySelector(`.timer-value`);
     const circle = this.element.querySelector(`.timer-line`);
-    const timeWarning = 30;
 
-    if (this.timer < timeWarning) {
+    if (this.timer < TIME_WARNING) {
       timerValue.classList.add(`timer-expired`);
       circle.classList.add(`timer-expired`);
     }

@@ -11,6 +11,8 @@ const INITIAL_STATE = {
   attempts: 3
 };
 
+const AVERAGE_ANSWER_TIME = 30;
+
 export default class GameModel {
   constructor(data) {
     this.restart();
@@ -36,14 +38,13 @@ export default class GameModel {
 
   get playerResult() {
     const answers = this.state.answers;
-    const averageAnswerTime = 30;
     let points = 0;
     let fast = 0;
 
     answers.forEach((answer) => {
       if (answer.correct) {
         points++;
-        if (answer.time < averageAnswerTime) {
+        if (answer.time < AVERAGE_ANSWER_TIME) {
           points++;
           fast++;
         }
