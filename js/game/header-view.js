@@ -2,6 +2,7 @@ import AbstractView from '../abstract-view.js';
 import {formatTime} from '../utils.js';
 
 const TIME_WARNING = 30;
+const CIRCLE_RADIUS = 370;
 
 export default class HeaderView extends AbstractView {
   constructor(game) {
@@ -9,7 +10,6 @@ export default class HeaderView extends AbstractView {
     this.timer = game.timer;
     this.time = formatTime(game.timer);
     this.mistakes = game.mistakes;
-    this.circleRadius = 370;
     this._propTime = game.timer / game.startTime;
   }
 
@@ -18,7 +18,7 @@ export default class HeaderView extends AbstractView {
     <header>
       <svg xmlns="http://www.w3.org/2000/svg" class="timer" viewBox="0 0 780 780">
         <circle
-          cx="390" cy="390" r="${this.circleRadius}"
+          cx="390" cy="390" r="${CIRCLE_RADIUS}"
           class="timer-line"
           stroke-dasharray="${this._calculateCircle(this._propTime).stroke}"
           stroke-dashoffset="${this._calculateCircle(this._propTime).offset}"
@@ -39,7 +39,7 @@ export default class HeaderView extends AbstractView {
   }
 
   _calculateCircle(proportion) {
-    const stroke = Math.round(2 * Math.PI * this.circleRadius);
+    const stroke = Math.round(2 * Math.PI * CIRCLE_RADIUS);
     const offset = stroke - (stroke * proportion);
     return {stroke, offset};
   }
