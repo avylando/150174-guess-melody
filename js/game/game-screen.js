@@ -67,7 +67,7 @@ export default class GameScreen {
         this.model.onMistake();
       }
 
-      if (this.model.mistakes === 3 || !this.model.isQuestionsRemained()) {
+      if (this.model.mistakes === this.model.attempts || !this.model.isQuestionsRemained()) {
         this.endGame();
       } else {
         this.changeContent();

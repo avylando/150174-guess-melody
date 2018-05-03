@@ -45,8 +45,9 @@ export default class HeaderView extends AbstractView {
   bind() {
     const timerValue = this.element.querySelector(`.timer-value`);
     const circle = this.element.querySelector(`.timer-line`);
+    const timeWarning = 30;
 
-    if (this.timer < 30) {
+    if (this.timer < timeWarning) {
       timerValue.classList.add(`timer-expired`);
       circle.classList.add(`timer-expired`);
     }

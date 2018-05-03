@@ -7,7 +7,8 @@ const INITIAL_STATE = {
   timer: 300,
   questionsRemained: 10,
   answers: [],
-  mistakes: 0
+  mistakes: 0,
+  attempts: 3
 };
 
 export default class GameModel {
@@ -29,15 +30,20 @@ export default class GameModel {
     return this._state.mistakes;
   }
 
+  get attempts() {
+    return this._state.attempts;
+  }
+
   get playerResult() {
     const answers = this.state.answers;
+    const averageAnswerTime = 30;
     let points = 0;
     let fast = 0;
 
     answers.forEach((answer) => {
       if (answer.correct) {
         points++;
-        if (answer.time < 30) {
+        if (answer.time < averageAnswerTime) {
           points++;
           fast++;
         }
@@ -137,7 +143,7 @@ export default class GameModel {
   }
 
   isCompleted() {
-    return !this.isQuestionsRemained() && this.mistakes < 3 && this.timer > 0;
+    return !this.isQuestionsRemained() && this.mistakes < this.attempts && this.timer > 0;
   }
 
   setStats(results) {
